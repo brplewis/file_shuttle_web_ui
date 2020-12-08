@@ -2,49 +2,114 @@
 
 {% block content %}
 <div class="main col-10">
-<div class="row first-row">
-  <div class="col-4">
-    <section>
-      <div class="card command-buttons">
-        <div class="card-header">
-          Houston Control
+  <div class="row first-row">
+    <div class="col-6">
+      <section>
+        <div class="card command-buttons">
+          <div class="card-header">
+           Status
+          </div>
+          <ul class="list-group api-list">
+            {% for launcher_name in status %}
+              {% if status[launcher_status] == 'Online' %}
+                <li class="list-group-item active">{{launcher_name}} {{status[launcher_name]}}</li>
+              {% else %}
+                <li class="list-group-item">{{launcher_name}} {{status[launcher_name]}}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
         </div>
-        <div class="list-group">
-          <button type="button" class="btn btn-dark">Launch</button>
-          <p></p>
-          <button type="button" class="btn btn-dark">Abort</button>
+      </section>
+    </div>
+    <div class="col-6">
+      <section>
+        <div class="card command-buttons">
+          <div class="card-header">
+           Washington Control Logs
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row g-0">
+                <div class="col">
+                  <div class="card-body">
+                    <h6 class="card-title">27-Nov-20 12:10:15</h6>
+                    <p class="card-text"> <small class="text-muted">INFO</small>  zoom_1.mp4: File Transfer Successful </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
-      </div>
-    </section>
-  </div>
-  <div class="col-4">
-    <section>
-      <div class="card command-buttons">
-        <div class="card-header">
-          ML share
-        </div>
-        <div class="list-group">
-          <button type="button" class="btn btn-dark">Launch</button>
-          <p></p>
-          <button type="button" class="btn btn-dark">Abort</button>
-        </div>
-      </div>
-    </section>
-  </div>
-  <div class="col-4">
-    <section>
-      <div class="card command-buttons">
-        <div class="card-header">
-         Status
-        </div>
-        <ul class="list-group api-list">
-          <li class="list-group-item active">Houston: Online</li>
-          <li class="list-group-item">ML Share: Offline</li>
-        </ul>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 
+<div class="row first-row">
+  {% for launcher_name in status %}
+    <div class="col-4">
+      <section>
+        <div class="card command-buttons">
+        <div class="card-header">
+          {{launcher_name}}
+        </div>
+        <div class="list-group">
+          <button type="button" class="btn btn-dark">Launch</button>
+          <p></p>
+          <button type="button" class="btn btn-dark">Abort</button>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
   </div>
 
 <div class="row second-row">
@@ -173,6 +238,7 @@
     </div>
   </section>
 </div>
+
 </div>
 <div class="row third-row">
 <div class="col-4">

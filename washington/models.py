@@ -60,7 +60,7 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.username)
 
 
-class launch_centre():
+class Launcher(db.Model):
     """Data model for launch_centre instances."""
     __tablename__ = 'launch_centre'
     id = db.Column(
@@ -89,7 +89,7 @@ class launch_centre():
     def __repr__(self):
         return '<launch_centre {}>'.format(self.id)
 
-class api(db.Model):
+class Api(db.Model):
     """Data model for user accounts."""
 
     __tablename__ = 'api'

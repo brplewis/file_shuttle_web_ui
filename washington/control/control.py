@@ -4,13 +4,15 @@ from flask import current_app as app
 from .. import forms
 from .. import auth
 from datetime import datetime, date
-from ..models import db, support_ticket, clients, User
+from ..models import db, Launcher, Api, User
 from flask_login import logout_user
 from .. import login_manager
+#from . import launcher
+import psutil
 
 # Blueprint Configuration
-tickets_bp = Blueprint(
-    'tickets_bp', __name__,
+control_bp = Blueprint(
+    'control_bp', __name__,
     template_folder='templates',
     static_folder='static'
 )
@@ -18,7 +20,7 @@ tickets_bp = Blueprint(
 
 print(auth.USER_ID)
 
-@app.context_processors
+#@app.context_processors
 def insert_user():
     if auth.USER_ID == None:
         return dict(user='No User')
@@ -28,7 +30,7 @@ def insert_user():
         return dict(user=user.name)
 
 
-@app.context_processor
+#@app.context_processor
 def if_admin():
     if auth.USER_ID == None:
         return dict(admin=False)
@@ -39,7 +41,7 @@ def if_admin():
         else:
             return dict(admin=False)
 
-@app.context_processor
+#@app.context_processor
 def user_type():
     if auth.USER_ID == None:
         return dict(user_type=None)
@@ -61,60 +63,59 @@ def check_admin():
         return False
 
 
-def log_input(text_input, ticket=None, entry_type=0, log_id=None):
-    # except a text input and create a time stamp and user # NOTE
-    # make a tuple of the two and either append it onto a list
-    # Or replace the edited entry with new edit and updated time stamp
 
-    # If new entry
-    if entry_type == 0:
-        # New log
-        ticket_log = []
-        time_stamp = f"{datetime.now().strftime('%d-%m-%Y %H:%M:%S')} @{auth.USER} | "
-        full_entry = [time_stamp, text_input + '\n']
-
-    elif entry_type == 1:
-        # If entry is an update
-        ticket_log = eval(ticket)
-        time_stamp = f"{datetime.now().strftime('%d-%m-%Y %H:%M:%S')} @{auth.USER} | "
-        full_entry = [time_stamp, text_input + '\n']
-
-    elif entry_type == 2:
-        ticket_log = eval(ticket)
-
-        log_id = int(log_id)
-
-        ticket_log[log_id][1] = text_input
-
-        if '## EDITED' in ticket_log[log_id][0]:
-            original_timestamp = ticket_log[log_id][0].split('## EDITED')[0]
-            new_timestamp = f"## EDITED {datetime.now().strftime('%d-%m-%Y %H:%M:%S')} @{auth.USER} | "
-        else:
-            original_timestamp = ticket_log[log_id][0].split('|')[0]
-            new_timestamp = f"## EDITED {datetime.now().strftime('%d-%m-%Y %H:%M:%S')} @{auth.USER} | "
-
-        ticket_log[log_id][0] = original_timestamp + new_timestamp
-
-        return ticket_log
-
-    ticket_log.append(full_entry)
-
-    return ticket_log
-
-
-@tickets_bp.route('/', methods=['POST', 'GET'])
-@login_required
+@control_bp.route('/', methods=['POST', 'GET'])
+#@login_required
 def dashboard():
-    #if check_user():
-    #    return redirect(url_for('tickets_bp.pending'))
 
-    #form = forms.DashboardSearch()
+
+    # Get Status update from all launcher instances
+
+    launcher_instances = {}
+
+    for launchers in Launcher.query.all():
+        launcher_instances[launchers.name] = launchers.name in (p.name() for p in psutil.process_iter())
+
+        if launcher_instances[launchers.name]:
+            launcher_instances[launchers.name] = "Online"
+        else:
+            launcher_instances[launchers.name] = "Offline"
+
+    
+
+
+
+
+
+    """
+    # check if programs are running
+    ml_share_stat = "ML_share" in (p.name() for p in psutil.process_iter())
+    houston_stat = "Houston_Control" in (p.name() for p in psutil.process_iter())
+
+    # Change to values to offline/online
+    if ml_share_stat:
+        ml_share_stat = 'Online'
+    else:
+        ml_share_stat = 'Offline'
+
+    if houston_stat:
+        houston_stat = 'Online'
+    else:
+        houston_stat = 'Offline'
+    """
+
+
+
+
+
+
+
 
     """
     if request.method == 'POST':
         pass
     """
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', status=launcher_instances)
 
 
 
@@ -131,7 +132,7 @@ def not_admin():
 
 """
 
-@tickets_bp.route("/logout")
+@control_bp.route("/logout")
 @login_required
 def logout():
     """User log-out logic."""
