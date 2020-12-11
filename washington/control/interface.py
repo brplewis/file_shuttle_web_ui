@@ -1,3 +1,11 @@
+#!/usr/bin/python3.6
+"""
+\\\\\\\\\--------=   File Shuttle  =---------/////////
+\\\\\\\\\\-= Head Controller "Washington"=-//////////
+//////////=================================\\\\\\\\\\
+"""
+
+
 from flask import Flask, render_template, request, redirect, url_for, Blueprint, make_response
 from flask_login import current_user, login_required
 from flask import current_app as app
@@ -7,8 +15,11 @@ from datetime import datetime, date
 from ..models import db, Launcher, Api, User
 from flask_login import logout_user
 from .. import login_manager
-#from . import launcher
-import psutil
+#from .launcher import Launcher
+from .controller import Controller
+
+
+
 
 # Blueprint Configuration
 control_bp = Blueprint(
@@ -16,6 +27,11 @@ control_bp = Blueprint(
     template_folder='templates',
     static_folder='static'
 )
+
+CONTROLLER = Controller()
+LAUNCHER_INSTANCES = {}
+LAUNCHER_LOGS = {}
+SHUTTLE_LOGS = {}
 
 
 print(auth.USER_ID)
@@ -63,52 +79,61 @@ def check_admin():
         return False
 
 
+def update_dashboard():
+    # Get Status update from all launcher instances
+    global LAUNCHER_INSTANCES = {}
+    global LAUNCHER_LOGS = {}
+    global SHUTTLE_LOGS = {}
+
+    for launchers in Launcher.query.all():
+        # Check if launcher is online
+        if launchers in CONTROLLER.get_active_launchers():
+            launcher_instances[launchers.name] = "Online"
+        else:
+            launcher_instances[launchers.name] = "Offline"
+
+        # Get log entries from launcher
+        with open(f'./launcher_logs/{launchers.name}.log', 'r') as log:
+            message = []
+            i = 0
+            lines = log.read().splitlines()
+            log_sample = []
+            for l in range(10):
+                try:
+                    for f in range(len(lines)):
+                        i += 1
+                        message.append(lines[-i])
+                        if f"INFO - Scanned" in lines[-i] and "for updates. Client_folders up to date." in lines[-i]:
+                            message.reverse()
+                            log_message = " \n".join(message)
+                            post = "------= New Cycle Complete =------\n" + log_message + "\n" + "-------------= End =-------------"
+                            log_sample.append(post)
+                except IndexError:
+                    break
+            launcher_logs[launchers.name] = log_sample
+
+        # Get logs for each shuttle belonging to launcher
+        for shuttle in launchers.get_active_shuttles():
+            try:
+                with open(f'./transfer_logs/{shuttle}.log', 'r') as log:
+                    log_lines = []
+                    for line in log:
+                        log_lines.append(line)
+                        if len(log_lines) == 60:
+                            break
+                    sample_log = "\n".join(log_lines)
+                    launcher_logs[launchers.name] = sample_log
+            except FileNotFoundError:
+                launcher_logs[launchers.name] = "ERROR: Logs not found!"
+
+
+
 
 @control_bp.route('/', methods=['POST', 'GET'])
 #@login_required
 def dashboard():
 
-
-    # Get Status update from all launcher instances
-
-    launcher_instances = {}
-
-    for launchers in Launcher.query.all():
-        launcher_instances[launchers.name] = launchers.name in (p.name() for p in psutil.process_iter())
-
-        if launcher_instances[launchers.name]:
-            launcher_instances[launchers.name] = "Online"
-        else:
-            launcher_instances[launchers.name] = "Offline"
-
-    
-
-
-
-
-
-    """
-    # check if programs are running
-    ml_share_stat = "ML_share" in (p.name() for p in psutil.process_iter())
-    houston_stat = "Houston_Control" in (p.name() for p in psutil.process_iter())
-
-    # Change to values to offline/online
-    if ml_share_stat:
-        ml_share_stat = 'Online'
-    else:
-        ml_share_stat = 'Offline'
-
-    if houston_stat:
-        houston_stat = 'Online'
-    else:
-        houston_stat = 'Offline'
-    """
-
-
-
-
-
-
+    update_dashboard()
 
 
     """
