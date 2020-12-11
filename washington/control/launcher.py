@@ -17,12 +17,13 @@ import threading
 
 class Launcher(threading.Thread):
 
-    def __init__(self, name, root, apis):
+    def __init__(self, name, root, apis, destination):
         threading.Thread.__init__(self)
         # Launcher Set Up Variables
         self.name = name
         self.root = root
         self.api = apis
+        self.destination = destination
 
         self.all_apis = []
         self.used_apis = {}
@@ -30,7 +31,7 @@ class Launcher(threading.Thread):
         self.active_shuttles = {}
 
         # Set up logging
-        logging.basicConfig(level=logging.INFO, filename=f"./launcher_logs/{NAME}.log", format='%(asctime)s - %(levelname)s - %(message)s',
+        logging.basicConfig(level=logging.INFO, filename=f"./launcher_logs/{NAME}.log", format='%(asctime)s | %(levelname)s | %(message)s',
                             datefmt='%d-%b-%y %H:%M:%S')
 
     def get_active_shuttles(self):
@@ -39,7 +40,7 @@ class Launcher(threading.Thread):
         for shuttle in self.active_shuttles:
             shuttles.append(shuttle)
 
-    def launch_shuttle(self, api, target_folder):
+    def launch_shuttle(self, api, root, target_folder):
 
         # Launches an instance of auto transfer
         # And add to list of active shuttles
@@ -53,7 +54,7 @@ class Launcher(threading.Thread):
         else:
             name = name_split
 
-        os.system(f"python3 shuttle.py {name} {api} {target_folder} & disown")
+        os.system(f"python3 shuttle.py {name} {api} {root} {target_folder} & disown")
         self.active_shuttles.append(name)
 
 
@@ -145,7 +146,7 @@ class Launcher(threading.Thread):
             else:
                 if len(self.free_apis) >= 1:
                     # Assign API to shuttle
-                    launch_shuttle(FREE_APIS[0], folder)
+                    launch_shuttle(FREE_APIS[0], folder, target_folder)
                     self.used_apis[folder] = FREE_APIS[0]
                     del self.free_apis[0]
                     logging.info(f"Launched {folder} shuttle")

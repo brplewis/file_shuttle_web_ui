@@ -78,6 +78,7 @@ def check_admin():
     if user.account_type != 'admin':
         return False
 
+"""
 
 def update_dashboard():
     # Get Status update from all launcher instances
@@ -126,21 +127,28 @@ def update_dashboard():
             except FileNotFoundError:
                 launcher_logs[launchers.name] = "ERROR: Logs not found!"
 
-
+"""
 
 
 @control_bp.route('/', methods=['POST', 'GET'])
 #@login_required
 def dashboard():
 
-    update_dashboard()
+    #update_dashboard()
+    launcher_instances = {'Houston' : 'Online'}
+    controller = Controller()
+    controller.start_launcher()
+    controller_logs = controller.get_logs()
+
+
+
 
 
     """
     if request.method == 'POST':
         pass
     """
-    return render_template('dashboard.html', status=launcher_instances)
+    return render_template('dashboard.html', status=launcher_instances, controller_logs=controller_logs)
 
 
 

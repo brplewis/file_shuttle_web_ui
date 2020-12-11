@@ -24,11 +24,11 @@ def create_app():
     with app.app_context():
         # Include our Routes
         from . import auth
-        from .control import control
+        from .control import interface
         db.create_all()
 
         # Register Blueprints
-        app.register_blueprint(control.control_bp)
+        app.register_blueprint(interface.control_bp)
         app.register_blueprint(auth.auth_bp)
         #app.register_blueprint(admin.admin_bp)
 

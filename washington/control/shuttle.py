@@ -21,26 +21,24 @@ import threading
 
 class Shuttle(threading.Thread):
 
-    def __init__(self, name, api, root, target):
+    def __init__(self, name, api, root, destination):
         threading.Thread.__init__(self)
         self.advisor = r"https://www.virustotal.com/api/v3/files/"
         self.content = "json"
         self.email = os.getenv("ALERT_EMAIL")
         self.emailp = os.getenv("ALERT_EMAIL_PASS")
         self.target_email = os.getenv("TARGET_EMAIL")
-        self.transfer_folder = root
-        self.transfer_log = self.transfer_folder.split('/')
         self.shuttle_name = name
         self.api_key = api
         self.root = root
-        self.target_path = target
+        self.destination = destination
 
 
-        log = open(f"./transfer_logs/{TRANSFER_LOG[2]}.log", 'w+')
+        log = open(f"./transfer_logs/{name}.log", 'w+')
         log.close()
 
         # Set up logging
-        logging.basicConfig(level=logging.INFO, filename=f"./transfer_logs/{TRANSFER_LOG[2]}_transfers.log", format='%(asctime)s - %(levelname)s - %(message)s',
+        logging.basicConfig(level=logging.INFO, filename=f"./transfer_logs/{TRANSFER_LOG[2]}_transfers.log", format='%(asctime)s | %(levelname)s | %(message)s',
                             datefmt='%d-%b-%y %H:%M:%S')
 
     def __del__(self):
@@ -115,7 +113,7 @@ class Shuttle(threading.Thread):
             # Creates corresponding temp-xfer path
             base, file_name = os.path.split(file_path)
             destination = os.path.join(base + os.sep + file_name)
-            destination = destination.replace(self.root, self.target_path)
+            destination = destination.replace(self.root, self.destination)
             print("Destination: " + destination)
 
             # Check if folder exists, else create it
@@ -123,7 +121,7 @@ class Shuttle(threading.Thread):
                 subprocess.call(["mv", "--backup=t", file_path, destination])
             else:
                 try:
-                    xfer_destination = base.replace(self.root, self.target_path)
+                    xfer_destination = base.replace(self.root, self.destination)
                     os.makedirs(xfer_destination, exist_ok=True)
                     subprocess.call(["mv", "--backup=t", file_path, xfer_destination])
                 except Exception as ex:
@@ -152,7 +150,7 @@ class Shuttle(threading.Thread):
     def run(self):
 
         try:
-            for root, _, files in os.walk(self.transfer_folder):
+            for root, _, files in os.walk(self.root):
                 for f in files:
                     if os.path.splitext(f)[-1].lower() != ".exe" and '.DS_store' not in f:
                         if f.startswith("#chkpt_file") == False and f.startswith("#work_file") == False:
@@ -173,7 +171,7 @@ class Shuttle(threading.Thread):
                                     email_message = "##############################################################\n" \
                                                     "VIRUS PROTOCOL INITIATED! {} failed virus check. TEMP-XFER is \n " \
                                                     "switching off SMB.\n Triggered by {} shuttle." \
-                                                    "##############################################################".format(f, {self.transfer_folder})
+                                                    "##############################################################".format(f, {self.root})
                                     logging.warning(email_message)
                                     reject_file(email_message)
 
@@ -181,7 +179,7 @@ class Shuttle(threading.Thread):
                             email_message = "##############################################################\n" \
                                             "VIRUS PROTOCOL INITIATED! {} triggered the BLM / .EXE catcher. \n " \
                                             "TEMP-XFER is switching off SMB.\n Triggered by {} shuttle. " \
-                                            "##############################################################".format(f, self.transfer_folder)
+                                            "##############################################################".format(f, self.root)
                             logging.warning(email_message)
                             reject_file(email_message)
         except Exception as ex:
