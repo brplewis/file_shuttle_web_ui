@@ -132,8 +132,8 @@ form {
   padding-right: 50px;
   padding-bottom: 50px;
 }
-.command-buttons{
-  height: 200px;
+.card .command-buttons{
+  height: 400px;
   padding-top: 10px;
 }
 

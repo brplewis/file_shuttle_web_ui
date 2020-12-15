@@ -17,6 +17,7 @@ from flask_login import logout_user
 from .. import login_manager
 #from .launcher import Launcher
 from .controller import Controller
+from flask_socketio import SocketIO, emit
 
 
 
@@ -149,6 +150,8 @@ def dashboard():
         pass
     """
     return render_template('dashboard.html', status=launcher_instances, controller_logs=controller_logs)
+
+
 
 
 
